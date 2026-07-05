@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Light mode variables */
+        --theme-bg: 250 250 250;
+        --theme-soft: 255 255 255;
+        --theme-card: 255 255 255;
+        --theme-border: 229 231 235;
+        --theme-text: 17 24 39;
+        --theme-muted: 107 114 128;
+        
+        --wine-primary: 122 0 31;
+        --wine-dark: 90 0 24;
+        --wine-accent: 148 0 40;
+        --wine-glow: 184 90 106;
+    }
+
+    .dark {
+        --theme-bg: 5 5 5;
+        --theme-soft: 16 16 16;
+        --theme-card: 21 21 21;
+        --theme-border: 37 37 37;
+        --theme-text: 255 255 255;
+        --theme-muted: 161 161 170;
+    }
+
+    body {
+        @apply bg-theme-bg text-theme-text font-['Roboto'] font-semibold tracking-tight relative min-h-screen selection:bg-wine-primary/30;
+        background: radial-gradient(circle at top left, rgba(122, 0, 31, 0.15), transparent 40%), rgb(var(--theme-bg));
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-wine-primary hover:bg-wine-accent text-white py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-wine-primary/25;
+    }
+
+    .btn-secondary {
+        @apply bg-theme-soft hover:bg-theme-card text-theme-text py-2 px-6 rounded-full transition-all duration-300 border border-theme-border;
+    }
+
+    .input-field {
+        @apply w-full bg-theme-card border border-theme-border rounded-xl px-4 py-3 text-theme-text focus:outline-none focus:border-wine-primary focus:ring-1 focus:ring-wine-primary transition-all duration-300 ease-in-out placeholder-theme-muted;
+    }
+
+    .card {
+        @apply bg-theme-card rounded-xl overflow-hidden shadow-lg shadow-black/40 border border-theme-border transition-all duration-300 hover:border-wine-primary hover:shadow-wine-primary/15 hover:scale-[1.02];
+    }
+
+    .nav-link {
+        @apply text-theme-muted hover:text-theme-text transition-all duration-300 ease-in-out relative;
+    }
+
+    .nav-link::after {
+        content: '';
+        @apply absolute -bottom-1 left-0 w-0 h-0.5 bg-wine-primary transition-all duration-300;
+    }
+
+    .nav-link:hover::after {
+        @apply w-full;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f0f12;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@layer utilities {
+    .animate-shake {
+        animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+    }
+
+    @keyframes shake {
+
+        10%,
+        90% {
+            transform: translate3d(-1px, 0, 0);
+        }
+
+        20%,
+        80% {
+            transform: translate3d(2px, 0, 0);
+        }
+
+        30%,
+        50%,
+        70% {
+            transform: translate3d(-4px, 0, 0);
+        }
+
+        40%,
+        60% {
+            transform: translate3d(4px, 0, 0);
+        }
+    }
+
+    .animate-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
