@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { SidebarProvider, useSidebar } from "./context/SidebarContext";
 
 import Navbar from "./components/Navbar";
@@ -28,17 +28,24 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 function AppLayout() {
   const { collapsed } = useSidebar();
+  const location = useLocation();
+
+  const isAuthPage = 
+    location.pathname === "/login" || 
+    location.pathname === "/register" || 
+    location.pathname === "/finish-sign-in";
 
   return (
     <>
-      <Navbar />
+      {!isAuthPage && <Navbar />}
       <div className="flex">
-        <Sidebar />
+        {!isAuthPage && <Sidebar />}
         <main 
           className={`flex-1 transition-all duration-300 w-full min-h-screen max-w-none
-            px-0 sm:px-6 lg:px-8
-            pt-24 lg:pt-10 pb-24 ml-0 lg:pb-8
-            ${collapsed ? "lg:ml-[80px]" : "lg:ml-[300px]"}
+            ${isAuthPage 
+              ? "p-0 m-0" 
+              : `px-0 sm:px-6 lg:px-8 pt-24 lg:pt-10 pb-24 ml-0 lg:pb-8 ${collapsed ? "lg:ml-[80px]" : "lg:ml-[300px]"}`
+            }
           `}
         >
           <Suspense fallback={
@@ -159,7 +166,7 @@ function AppLayout() {
           </Suspense>
         </main>
       </div>
-      <BottomNav />
+      {!isAuthPage && <BottomNav />}
     </>
   );
 }
