@@ -75,8 +75,9 @@ export default function Login() {
     } catch (error) {
       // User closed popup or other error
       if (error.code !== "auth/popup-closed-by-user") {
+        console.error("Google Sign-in Error:", error);
         setErrorMessage(
-          error.response?.data?.message || "Google sign-in failed. Please try again."
+          error.response?.data?.message || error.message || "Google sign-in failed. Please try again."
         );
       }
     } finally {

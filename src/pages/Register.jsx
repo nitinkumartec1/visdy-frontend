@@ -198,8 +198,9 @@ export default function Register() {
       navigate("/");
     } catch (error) {
       if (error.code !== "auth/popup-closed-by-user") {
+        console.error("Google Sign-up Error:", error);
         setErrorMessage(
-          error.response?.data?.message || "Google sign-up failed. Please try again."
+          error.response?.data?.message || error.message || "Google sign-up failed. Please try again."
         );
       }
     } finally {
