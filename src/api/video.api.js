@@ -15,15 +15,11 @@ export const deleteVideo = (id) =>
 export const togglePublishStatus = (id) =>
   api.patch(`/videos/toggle/publish/${id}`);
 
-export const uploadVideo = (formData, onUploadProgress) =>
-  api.post("/videos", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    onUploadProgress,
-  });
+export const generateSignature = () =>
+  api.get("/videos/generate-signature");
 
-export const uploadEditedVideo = (formData, onUploadProgress) =>
-  api.post("/videos/edited", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    timeout: 600000, // 10 min timeout for large processed videos
-    onUploadProgress,
-  });
+export const uploadVideo = (data) =>
+  api.post("/videos", data);
+
+export const uploadEditedVideo = (data) =>
+  api.post("/videos/edited", data);

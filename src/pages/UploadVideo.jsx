@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadVideo } from "../api/video.api";
+import axios from "axios";
+import { uploadVideo, generateSignature } from "../api/video.api";
 
 /* -------------------------------------------------------
    File validation limits (must match backend)
@@ -95,24 +96,59 @@ export default function UploadVideo() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("videoFile", videoFile);
-    formData.append("thumbnail", thumbnailFile);
-
     try {
       setLoading(true);
       setMessage(null);
       setUploadProgress(0);
 
-      await uploadVideo(formData, (progressEvent) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        }
+      // 1. Get upload signature from backend
+      const { data: sigRes } = await generateSignature();
+      const { timestamp, signature, apiKey, cloudName } = sigRes.data;
+
+      // Helper function to upload file directly to Cloudinary
+      const uploadToCloudinary = async (file, resourceType) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("api_key", apiKey);
+        formData.append("timestamp", timestamp);
+        formData.append("signature", signature);
+
+        const res = await axios.post(
+          `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+          formData,
+          {
+            onUploadProgress: (progressEvent) => {
+              if (resourceType === 'video' && progressEvent.total) {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                // Map to 0-90% to leave room for final save
+                setUploadProgress(Math.floor(percentCompleted * 0.9));
+              }
+            }
+          }
+        );
+        return res.data;
+      };
+
+      // 2. Upload Video to Cloudinary
+      const videoData = await uploadToCloudinary(videoFile, 'video');
+
+      // 3. Upload Thumbnail to Cloudinary
+      const thumbData = await uploadToCloudinary(thumbnailFile, 'image');
+
+      setUploadProgress(95);
+
+      // 4. Send final Cloudinary URLs to our Backend
+      await uploadVideo({
+        title,
+        description,
+        videoUrl: videoData.secure_url,
+        videoPublicId: videoData.public_id,
+        duration: videoData.duration || 0,
+        thumbnailUrl: thumbData.secure_url,
+        thumbnailPublicId: thumbData.public_id,
       });
       
+      setUploadProgress(100);
       setMessage({ type: "success", text: "Video uploaded successfully!" });
       
       // Delay navigation slightly so user sees success message
