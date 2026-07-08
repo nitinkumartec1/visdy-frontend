@@ -46,6 +46,7 @@ export default function UploadVideo() {
 
   // Upload progress and loading state
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState(null); // { type: 'success' | 'error', text: string }
 
   const formRef = useRef(null);
@@ -103,8 +104,14 @@ export default function UploadVideo() {
     try {
       setLoading(true);
       setMessage(null);
+      setUploadProgress(0);
 
-      await uploadVideo(formData);
+      await uploadVideo(formData, (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
       
       setMessage({ type: "success", text: "Video uploaded successfully!" });
       
@@ -251,6 +258,22 @@ export default function UploadVideo() {
               </div>
             </div>
           </div>
+
+          {/* Progress Bar */}
+          {loading && (
+            <div className="w-full space-y-2">
+              <div className="flex justify-between text-sm font-medium text-theme-muted">
+                <span>Uploading...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-theme-border/50 rounded-full h-2.5 overflow-hidden">
+                <div 
+                  className="bg-wine-primary h-2.5 rounded-full transition-all duration-300 ease-out" 
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Status Message */}
           {message && (
